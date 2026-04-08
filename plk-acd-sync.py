@@ -99,6 +99,20 @@ def run_query(sql: str) -> list[dict[str, object]]:
         conn.close()
 
 
+def load_hospital_info() -> dict[str, str | None]:
+    if DB_TYPE == "postgres":
+        sql = "SELECT hospitalcode AS hoscode, hospitalname AS hosname FROM opdconfig LIMIT 1"
+    else:
+        sql = "SELECT hospitalcode AS hoscode, hospitalname AS hosname FROM opdconfig LIMIT 1"
+
+    rows = run_query(sql)
+    first = rows[0] if rows else {}
+    return {
+        "hoscode": clean_text(first.get("hoscode")),
+        "hosname": clean_text(first.get("hosname")),
+    }
+
+
 def clean_text(value: object | None) -> str | None:
     if value is None:
         return None
@@ -188,11 +202,11 @@ def make_json_request(url: str, payload: dict[str, object | None], include_token
         raise RuntimeError(f"HTTP {exc.code}: {details}") from exc
 
 
-def post_sync_log(rows: list[dict[str, object]]) -> dict:
+def post_sync_log(rows: list[dict[str, object]], hospital_info: dict[str, str | None]) -> dict:
     first = rows[0] if rows else {}
     payload = {
-        "hoscode": clean_text(first.get("hoscode")),
-        "hosname": clean_text(first.get("hosname")),
+        "hoscode": clean_text(first.get("hoscode")) or hospital_info.get("hoscode"),
+        "hosname": clean_text(first.get("hosname")) or hospital_info.get("hosname"),
         "num_pt_case": len(rows),
     }
     return make_json_request(build_api_url("/api/sync-log"), payload, include_token=False)
@@ -206,10 +220,29 @@ def main() -> int:
     configure_stdio()
     sql = load_query()
     rows = run_query(sql)
+    hospital_info = load_hospital_info()
     payloads = [map_row_to_payload(row) for row in rows]
-    sync_log_response = post_sync_log(rows)
+    sync_log_response = post_sync_log(rows, hospital_info)
 
     results = []
+    if not payloads:
+        print(
+            json.dumps(
+                [
+                    {
+                        "index": 0,
+                        "cid": None,
+                        "visit_date": None,
+                        "sync_log": sync_log_response.get("row", sync_log_response),
+                        "response": None,
+                    }
+                ],
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 0
+
     for idx, payload in enumerate(payloads, start=1):
         response = post_patient(payload)
         results.append(
