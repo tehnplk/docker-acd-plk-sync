@@ -15,7 +15,8 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 COPY . /app
 
-RUN chmod +x /app/run-sync.sh /app/docker-entrypoint.sh \
+RUN sed -i 's/\r$//' /app/run-sync.sh /app/docker-entrypoint.sh /app/crontab \
+    && chmod +x /app/run-sync.sh /app/docker-entrypoint.sh \
     && crontab /app/crontab
 
-CMD ["/app/docker-entrypoint.sh"]
+CMD ["sh", "/app/docker-entrypoint.sh"]
