@@ -40,7 +40,7 @@ Copy-Item .env.example .env
 DB_TYPE=mysql
 
 # Source database connection
-DB_HOST=host.docker.internal
+DB_HOST=ip_hosxp_slave
 DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=112233
@@ -55,7 +55,7 @@ SECRET_KEY=accident-patient-jwt-2026-plk
 
 - `DB_TYPE` ต้องเป็น `mysql` หรือ `postgres`
 - `API_URL` ควรเป็น endpoint เต็มของ patient API
-- `DB_HOST=host.docker.internal` ใช้ให้ container มองเห็นฐานข้อมูลบนเครื่อง host ของ Windows
+- `DB_HOST` ให้ใส่ IP หรือ hostname ของเครื่อง `hosxp_slave` ที่ต้องการเชื่อมต่อ
 - ข้อมูลที่จัดเก็บที่ `https://accident.plkhealth.go.th/` จะถูกเข้ารหัสด้วยกระบวนการ AES
 
 ## วิธี Build และ Run
