@@ -1,0 +1,41 @@
+{
+  "id": null,
+  "hoscode": "11253",
+  "hosname": "โรงพยาบาลบางกระทุ่ม",
+  "hn": "000118600",
+  "cid": "1690500063601",
+  "patient_name": "น.ส.พัชรินทร์ นามสมมติ",
+  "vn": "690104103357",
+  "visit_date": "2026-01-04",
+  "visit_time": "10:33:57",
+  "sex": "หญิง",
+  "age": 37,
+  "house_no": "14",
+  "moo": "00",
+  "road": null,
+  "tumbon": "บางแค",
+  "amphoe": "เขตบางแค",
+  "changwat": "กรุงเทพมหานคร",
+  "cc": "อุบัติเหตุรถจักรยานยนต์",
+  "triage": "Emergency (ฉุกเฉิน)",
+  "status": "ส่งต่อ",
+  "pdx": "S098-Other specified injuries of head",
+  "ext_dx": "V0219-Pedestrian injured in collision with two-or three-wheeled motor vehicle at Traffic accident During unspecified activity",
+  "dx_list": [
+    {
+      "code": "S098",
+      "name": "Other specified injuries of head"
+    },
+    {
+      "code": "S510",
+      "name": "Open wound of elbow"
+    },
+    {
+      "code": "V0219",
+      "name": "Pedestrian injured in collision with two-or three-wheeled motor vehicle at Traffic accident During unspecified activity"
+    }
+  ],
+  "source": "auto",
+  "alcohol": 0,
+  "cid_hash": null
+}
