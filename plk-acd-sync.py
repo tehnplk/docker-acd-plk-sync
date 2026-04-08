@@ -158,10 +158,20 @@ def map_row_to_payload(row: dict[str, object]) -> dict[str, object | None]:
     }
 
 
-def post_patient(payload: dict[str, object | None]) -> dict:
-    token = make_token(PATIENT_API_JWT_SECRET)
-    api_url = PATIENT_API_URL if PATIENT_API_URL.endswith("/api/patient") else f"{PATIENT_API_URL}/api/patient"
-    url = f"{api_url}?token={token}"
+def build_api_url(path: str) -> str:
+    normalized = PATIENT_API_URL.rstrip("/")
+    if normalized.endswith("/api/patient"):
+        base = normalized[: -len("/api/patient")]
+    else:
+        base = normalized
+    return f"{base}{path}"
+
+
+def make_json_request(url: str, payload: dict[str, object | None], include_token: bool) -> dict:
+    if include_token:
+        token = make_token(PATIENT_API_JWT_SECRET)
+        url = f"{url}?token={token}"
+
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     req = request.Request(
         url=url,
@@ -178,11 +188,26 @@ def post_patient(payload: dict[str, object | None]) -> dict:
         raise RuntimeError(f"HTTP {exc.code}: {details}") from exc
 
 
+def post_sync_log(rows: list[dict[str, object]]) -> dict:
+    first = rows[0] if rows else {}
+    payload = {
+        "hoscode": clean_text(first.get("hoscode")),
+        "hosname": clean_text(first.get("hosname")),
+        "num_pt_case": len(rows),
+    }
+    return make_json_request(build_api_url("/api/sync-log"), payload, include_token=False)
+
+
+def post_patient(payload: dict[str, object | None]) -> dict:
+    return make_json_request(build_api_url("/api/patient"), payload, include_token=True)
+
+
 def main() -> int:
     configure_stdio()
     sql = load_query()
     rows = run_query(sql)
     payloads = [map_row_to_payload(row) for row in rows]
+    sync_log_response = post_sync_log(rows)
 
     results = []
     for idx, payload in enumerate(payloads, start=1):
@@ -192,6 +217,7 @@ def main() -> int:
                 "index": idx,
                 "cid": payload.get("cid"),
                 "visit_date": payload.get("visit_date"),
+                "sync_log": sync_log_response.get("row", sync_log_response) if idx == 1 else None,
                 "response": response.get("row", response),
             }
         )
