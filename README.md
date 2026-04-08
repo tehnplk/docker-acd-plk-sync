@@ -24,11 +24,11 @@
 
 ## การตั้งค่า
 
-สร้างไฟล์ `.env` จาก `.env.example` ก่อน:
+Copy `.env.example` เป็น `.env` ก่อน:
 
 ```powershell
 cd docker-acd-plk-sync
-Copy-Item .env.example .env
+Copy .env.example .env
 ```
 
 จากนั้นแก้ไฟล์ `.env` ก่อนเริ่มใช้งาน
