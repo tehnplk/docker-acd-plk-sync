@@ -31,7 +31,7 @@ cd docker-acd-plk-sync
 Copy .env.example .env
 ```
 
-จากนั้นแก้ไฟล์ `.env` ก่อนเริ่มใช้งาน
+จากนั้นแก้ไฟล์ `.env` เฉพาะส่วนการเชื่อมต่อฐานข้อมูลก่อนเริ่มใช้งาน
 
 ตัวอย่าง:
 
@@ -54,8 +54,9 @@ SECRET_KEY=accident-patient-jwt-2026-plk
 หมายเหตุ:
 
 - `DB_TYPE` ต้องเป็น `mysql` หรือ `postgres`
-- `API_URL` ควรเป็น endpoint เต็มของ patient API
 - `DB_HOST` ให้ใส่ IP หรือ hostname ของเครื่อง `hosxp_slave` ที่ต้องการเชื่อมต่อ
+- `API_URL` เป็น endpoint จริงห้ามแก้ไข
+- `SECRET_KEY` ห้ามแก้ไข
 - ข้อมูลที่จัดเก็บที่ `https://accident.plkhealth.go.th/` จะถูกเข้ารหัสด้วยกระบวนการ AES
 
 ## วิธี Build และ Run
@@ -96,12 +97,7 @@ Get-Content docker-acd-plk-sync\sync.log -Tail 20
 
 ถ้าแก้ไฟล์เหล่านี้:
 
-- `plk-acd-sync.py`
 - `*.sql`
-- `.env`
-- `run-sync.sh`
-- `docker-entrypoint.sh`
-- `Dockerfile`
 
 ให้ rebuild container ใหม่ด้วย:
 
