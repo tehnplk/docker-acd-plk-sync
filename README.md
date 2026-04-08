@@ -56,6 +56,7 @@ SECRET_KEY=accident-patient-jwt-2026-plk
 - `DB_TYPE` ต้องเป็น `mysql` หรือ `postgres`
 - `API_URL` ควรเป็น endpoint เต็มของ patient API
 - `DB_HOST=host.docker.internal` ใช้ให้ container มองเห็นฐานข้อมูลบนเครื่อง host ของ Windows
+- ข้อมูลที่จัดเก็บที่ `https://accident.plkhealth.go.th/` จะถูกเข้ารหัสด้วยกระบวนการ AES
 
 ## วิธี Build และ Run
 
