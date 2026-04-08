@@ -83,9 +83,7 @@ docker ps --filter "name=acd-plk-sync"
 
 ## ดู log
 
-```powershell
-Get-Content docker-acd-plk-sync\sync.log -Tail 20
-```
+ดูจากไฟล์ `sync.log`
 
 รูปแบบ log จะมีแค่:
 
