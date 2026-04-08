@@ -83,7 +83,7 @@ docker ps --filter "name=acd-plk-sync"
 
 ## ดู log
 
-ดูจากไฟล์ `sync.log`
+ดูจากไฟล์ `logs/sync.log`
 
 รูปแบบ log จะมีแค่:
 

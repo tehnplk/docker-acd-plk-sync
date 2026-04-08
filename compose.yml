@@ -11,6 +11,6 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       TZ: Asia/Bangkok
-      SYNC_LOG_FILE: /app/sync.log
+      SYNC_LOG_FILE: /logs/sync.log
     volumes:
-      - ./sync.log:/app/sync.log
+      - ./logs:/logs

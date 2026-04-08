@@ -5,6 +5,10 @@ SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 LOG_FILE="${SYNC_LOG_FILE:-$SCRIPT_DIR/sync.log}"
 TMP_FILE="$(mktemp)"
 
+if [ -d "$LOG_FILE" ]; then
+  LOG_FILE="$LOG_FILE/sync.log"
+fi
+
 cleanup() {
   rm -f "$TMP_FILE"
 }
