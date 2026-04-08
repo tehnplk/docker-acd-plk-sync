@@ -132,17 +132,6 @@ def clean_int(value: object | None) -> int | None:
         return None
 
 
-def clean_dx_list(value: object | None) -> list[dict[str, str]] | None:
-    text = clean_text(value)
-    if text is None:
-        return None
-    try:
-        parsed = json.loads(text)
-    except json.JSONDecodeError:
-        return None
-    return parsed if isinstance(parsed, list) else None
-
-
 def map_row_to_payload(row: dict[str, object]) -> dict[str, object | None]:
     return {
         "hoscode": clean_text(row.get("hoscode")),
@@ -166,7 +155,7 @@ def map_row_to_payload(row: dict[str, object]) -> dict[str, object | None]:
         "status": clean_text(row.get("status")),
         "pdx": clean_text(row.get("pdx")),
         "ext_dx": clean_text(row.get("ext_dx")),
-        "dx_list": clean_dx_list(row.get("dx_list")),
+        "dx_list": None,
         "source": clean_text(row.get("source")) or "auto",
         "alcohol": clean_int(row.get("alcohol")),
     }

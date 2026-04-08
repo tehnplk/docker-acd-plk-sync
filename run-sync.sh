@@ -1,9 +1,16 @@
 #!/bin/sh
 set -eu
 
+if [ -f /app/.container_env ]; then
+  . /app/.container_env
+fi
+
+export PATH="/usr/local/bin:/usr/bin:/bin:${PATH:-}"
+
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 LOG_FILE="${SYNC_LOG_FILE:-$SCRIPT_DIR/sync.log}"
 TMP_FILE="$(mktemp)"
+PYTHON_BIN="${PYTHON_BIN:-/usr/local/bin/python}"
 
 if [ -d "$LOG_FILE" ]; then
   LOG_FILE="$LOG_FILE/sync.log"
@@ -17,7 +24,12 @@ trap cleanup EXIT
 
 mkdir -p "$(dirname "$LOG_FILE")"
 
-CASE_COUNT="$(python - <<'PY'
+if [ ! -x "$PYTHON_BIN" ]; then
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] err (python runtime not found at $PYTHON_BIN)" >>"$LOG_FILE"
+  exit 1
+fi
+
+CASE_COUNT="$("$PYTHON_BIN" - <<'PY'
 import runpy
 
 ns = runpy.run_path("/app/plk-acd-sync.py", run_name="__plk_sync__")
@@ -29,8 +41,8 @@ PY
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] sync start (${CASE_COUNT} cases)" >>"$LOG_FILE"
 
-if python "$SCRIPT_DIR/plk-acd-sync.py" >"$TMP_FILE" 2>&1; then
-  SYNC_RESULT_COUNT="$(python - <<'PY' "$TMP_FILE"
+if "$PYTHON_BIN" "$SCRIPT_DIR/plk-acd-sync.py" >"$TMP_FILE" 2>&1; then
+  SYNC_RESULT_COUNT="$("$PYTHON_BIN" - <<'PY' "$TMP_FILE"
 import json
 import pathlib
 import sys

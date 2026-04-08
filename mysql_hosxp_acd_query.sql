@@ -73,20 +73,7 @@ SELECT
     END AS status,
     CONCAT(d1.icd10, '-', i1.name) AS pdx,
     CONCAT(d2.icd10, '-', i2.name) AS ext_dx,
-    (
-        SELECT CONCAT(
-            '[',
-            GROUP_CONCAT(
-                DISTINCT JSON_OBJECT('code', d3.icd10, 'name', i3.name)
-                ORDER BY d3.icd10
-                SEPARATOR ','
-            ),
-            ']'
-        )
-        FROM ovstdiag d3
-        JOIN icd101 i3 ON i3.code = d3.icd10
-        WHERE d3.vn = v.vn
-    ) AS dx_list,
+    NULL AS dx_list,
     'auto' AS source,
     CASE WHEN aat.accident_alcohol_type_name = 'ดื่ม' THEN 1 ELSE 0 END AS alcohol,
     NULL AS cid_hash

@@ -47,15 +47,7 @@ SELECT
     END AS status,
     concat(d1.icd10, '-', i1.name) AS pdx,
     concat(d2.icd10, '-', i2.name) AS ext_dx,
-    (
-        SELECT jsonb_agg(jsonb_build_object('code', dx.code, 'name', dx.name))::text
-        FROM (
-            SELECT DISTINCT d3.icd10 AS code, i3.name
-            FROM ovstdiag d3
-            JOIN icd101 i3 ON i3.code = d3.icd10
-            WHERE d3.vn = v.vn
-        ) AS dx
-    ) AS dx_list,
+    NULL AS dx_list,
     'auto' AS source,
     CASE WHEN aat.accident_alcohol_type_name = 'ดื่ม' THEN 1 ELSE 0 END AS alcohol,
     NULL AS cid_hash
