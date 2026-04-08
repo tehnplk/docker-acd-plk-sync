@@ -57,7 +57,7 @@ SELECT
         ) AS dx
     ) AS dx_list,
     'auto' AS source,
-    CASE WHEN aat.is_code = '1' THEN 1 ELSE 0 END AS alcohol,
+    CASE WHEN aat.accident_alcohol_type_name = 'ดื่ม' THEN 1 ELSE 0 END AS alcohol,
     NULL AS cid_hash
 FROM ovst v
 JOIN patient p ON p.hn = v.hn
