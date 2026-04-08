@@ -155,7 +155,7 @@ def map_row_to_payload(row: dict[str, object]) -> dict[str, object | None]:
         "status": clean_text(row.get("status")),
         "pdx": clean_text(row.get("pdx")),
         "ext_dx": clean_text(row.get("ext_dx")),
-        "dx_list": None,
+        "dx_list": clean_text(row.get("dx_list")),
         "source": clean_text(row.get("source")) or "auto",
         "alcohol": clean_int(row.get("alcohol")),
     }

@@ -30,10 +30,22 @@ SELECT
             )
         END,
         CASE
-            WHEN nullif(nullif(trim(replace(replace(replace(coalesce(os.hpi, ''), E'\r', ' '), E'\n', ' '), '|', '/')), ''), '""') IS NULL THEN NULL
+            WHEN nullif(nullif(trim(replace(replace(replace(coalesce((
+                SELECT ph.hpi_text
+                FROM patient_history_hpi ph
+                WHERE ph.vn = v.vn
+                ORDER BY ph.update_datetime DESC NULLS LAST, ph.patient_history_hpi_id DESC
+                LIMIT 1
+            ), os.hpi, ''), E'\r', ' '), E'\n', ' '), '|', '/')), ''), '""') IS NULL THEN NULL
             ELSE concat(
                 'pi: ',
-                nullif(nullif(trim(replace(replace(replace(coalesce(os.hpi, ''), E'\r', ' '), E'\n', ' '), '|', '/')), ''), '""')
+                nullif(nullif(trim(replace(replace(replace(coalesce((
+                    SELECT ph.hpi_text
+                    FROM patient_history_hpi ph
+                    WHERE ph.vn = v.vn
+                    ORDER BY ph.update_datetime DESC NULLS LAST, ph.patient_history_hpi_id DESC
+                    LIMIT 1
+                ), os.hpi, ''), E'\r', ' '), E'\n', ' '), '|', '/')), ''), '""')
             )
         END
     ) AS cc,
@@ -47,9 +59,18 @@ SELECT
     END AS status,
     concat(d1.icd10, '-', i1.name) AS pdx,
     concat(d2.icd10, '-', i2.name) AS ext_dx,
-    NULL AS dx_list,
+    (
+        SELECT string_agg(dx_item.icd10, ' | ' ORDER BY dx_item.diagtype, dx_item.icd10)
+        FROM (
+            SELECT DISTINCT
+                dx.diagtype,
+                dx.icd10
+            FROM ovstdiag dx
+            WHERE dx.vn = v.vn
+        ) dx_item
+    ) AS dx_list,
     'auto' AS source,
-    CASE WHEN aat.accident_alcohol_type_name = 'ดื่ม' THEN 1 ELSE 0 END AS alcohol,
+    CASE WHEN aat.accident_alcohol_type_id = 1 THEN 1 ELSE 0 END AS alcohol,
     NULL AS cid_hash
 FROM ovst v
 JOIN patient p ON p.hn = v.hn

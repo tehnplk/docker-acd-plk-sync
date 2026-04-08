@@ -45,7 +45,13 @@ SELECT
         IF(
             NULLIF(
                 NULLIF(
-                    TRIM(REPLACE(REPLACE(REPLACE(COALESCE(os.hpi, ''), '\r', ' '), '\n', ' '), '|', '/')),
+                    TRIM(REPLACE(REPLACE(REPLACE(COALESCE((
+                        SELECT ph.hpi_text
+                        FROM patient_history_hpi ph
+                        WHERE ph.vn = v.vn
+                        ORDER BY ph.update_datetime DESC, ph.patient_history_hpi_id DESC
+                        LIMIT 1
+                    ), os.hpi, ''), '\r', ' '), '\n', ' '), '|', '/')),
                     ''
                 ),
                 '""'
@@ -55,7 +61,13 @@ SELECT
                 'pi: ',
                 NULLIF(
                     NULLIF(
-                        TRIM(REPLACE(REPLACE(REPLACE(COALESCE(os.hpi, ''), '\r', ' '), '\n', ' '), '|', '/')),
+                        TRIM(REPLACE(REPLACE(REPLACE(COALESCE((
+                            SELECT ph.hpi_text
+                            FROM patient_history_hpi ph
+                            WHERE ph.vn = v.vn
+                            ORDER BY ph.update_datetime DESC, ph.patient_history_hpi_id DESC
+                            LIMIT 1
+                        ), os.hpi, ''), '\r', ' '), '\n', ' '), '|', '/')),
                         ''
                     ),
                     '""'
@@ -73,9 +85,17 @@ SELECT
     END AS status,
     CONCAT(d1.icd10, '-', i1.name) AS pdx,
     CONCAT(d2.icd10, '-', i2.name) AS ext_dx,
-    NULL AS dx_list,
+    (
+        SELECT GROUP_CONCAT(
+            DISTINCT dx.icd10
+            ORDER BY dx.diagtype, dx.icd10
+            SEPARATOR ' | '
+        )
+        FROM ovstdiag dx
+        WHERE dx.vn = v.vn
+    ) AS dx_list,
     'auto' AS source,
-    CASE WHEN aat.accident_alcohol_type_name = 'ดื่ม' THEN 1 ELSE 0 END AS alcohol,
+    CASE WHEN aat.accident_alcohol_type_id = 1 THEN 1 ELSE 0 END AS alcohol,
     NULL AS cid_hash
 FROM ovst v
 JOIN patient p ON p.hn = v.hn
