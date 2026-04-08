@@ -20,7 +20,49 @@ SELECT
     t.name AS tumbon,
     a.name AS amphoe,
     c.name AS changwat,
-    REPLACE(REPLACE(REPLACE(COALESCE(os.cc, er.er_list, ''), '\r', ' '), '\n', ' '), '|', '/') AS cc,
+    CONCAT_WS(
+        ' | ',
+        IF(
+            NULLIF(
+                NULLIF(
+                    TRIM(REPLACE(REPLACE(REPLACE(COALESCE(os.cc, er.er_list, ''), '\r', ' '), '\n', ' '), '|', '/')),
+                    ''
+                ),
+                '""'
+            ) IS NULL,
+            NULL,
+            CONCAT(
+                'cc: ',
+                NULLIF(
+                    NULLIF(
+                        TRIM(REPLACE(REPLACE(REPLACE(COALESCE(os.cc, er.er_list, ''), '\r', ' '), '\n', ' '), '|', '/')),
+                        ''
+                    ),
+                    '""'
+                )
+            )
+        ),
+        IF(
+            NULLIF(
+                NULLIF(
+                    TRIM(REPLACE(REPLACE(REPLACE(COALESCE(os.hpi, ''), '\r', ' '), '\n', ' '), '|', '/')),
+                    ''
+                ),
+                '""'
+            ) IS NULL,
+            NULL,
+            CONCAT(
+                'pi: ',
+                NULLIF(
+                    NULLIF(
+                        TRIM(REPLACE(REPLACE(REPLACE(COALESCE(os.hpi, ''), '\r', ' '), '\n', ' '), '|', '/')),
+                        ''
+                    ),
+                    '""'
+                )
+            )
+        )
+    ) AS cc,
     IFNULL(el.er_emergency_level_name, NULL) AS triage,
     CASE ost.export_code
         WHEN '1' THEN 'กลับบ้าน'
@@ -85,4 +127,4 @@ WHERE EXISTS (
     WHERE d0.vn = v.vn
       AND d0.icd10 LIKE 'V%'
 )
-  AND v.vstdate >= '2026-01-01';
+  AND v.vstdate >= '2026-04-08';

@@ -20,7 +20,23 @@ SELECT
     t.name AS tumbon,
     a.name AS amphoe,
     c.name AS changwat,
-    replace(replace(replace(coalesce(os.cc, er.er_list, ''), E'\r', ' '), E'\n', ' '), '|', '/') AS cc,
+    concat_ws(
+        ' | ',
+        CASE
+            WHEN nullif(nullif(trim(replace(replace(replace(coalesce(os.cc, er.er_list, ''), E'\r', ' '), E'\n', ' '), '|', '/')), ''), '""') IS NULL THEN NULL
+            ELSE concat(
+                'cc: ',
+                nullif(nullif(trim(replace(replace(replace(coalesce(os.cc, er.er_list, ''), E'\r', ' '), E'\n', ' '), '|', '/')), ''), '""')
+            )
+        END,
+        CASE
+            WHEN nullif(nullif(trim(replace(replace(replace(coalesce(os.hpi, ''), E'\r', ' '), E'\n', ' '), '|', '/')), ''), '""') IS NULL THEN NULL
+            ELSE concat(
+                'pi: ',
+                nullif(nullif(trim(replace(replace(replace(coalesce(os.hpi, ''), E'\r', ' '), E'\n', ' '), '|', '/')), ''), '""')
+            )
+        END
+    ) AS cc,
     el.er_emergency_level_name AS triage,
     CASE ost.export_code
         WHEN '1' THEN 'กลับบ้าน'
@@ -80,4 +96,4 @@ WHERE EXISTS (
     WHERE d0.vn = v.vn
       AND d0.icd10 LIKE 'V%'
 )
-  AND v.vstdate::date >= DATE '2026-01-01';
+  AND v.vstdate::date >= DATE '2026-04-08';
