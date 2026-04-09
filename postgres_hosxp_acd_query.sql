@@ -4,7 +4,10 @@ SELECT
     (SELECT hospitalname FROM opdconfig LIMIT 1) AS hosname,
     p.hn AS hn,
     p.cid AS cid,
-    concat(coalesce(p.pname, ''), coalesce(p.fname, ''), ' ', coalesce(p.lname, '')) AS patient_name,
+    CASE
+        WHEN p.pname IS NULL OR p.fname IS NULL OR p.lname IS NULL THEN NULL
+        ELSE concat(p.pname, p.fname, ' ', p.lname)
+    END AS patient_name,
     v.vn AS vn,
     to_char(v.vstdate::date, 'YYYY-MM-DD') AS visit_date,
     to_char(v.vsttime::time, 'HH24:MI:SS') AS visit_time,
@@ -49,7 +52,7 @@ SELECT
             )
         END
     ) AS cc,
-    el.er_emergency_level_name AS triage,
+    et.er_emergency_level_name AS triage,
     CASE ost.export_code
         WHEN '1' THEN 'กลับบ้าน'
         WHEN '2' THEN 'รับไว้รักษา'
@@ -62,11 +65,12 @@ SELECT
     (
         SELECT string_agg(dx_item.icd10, ' | ' ORDER BY dx_item.diagtype, dx_item.icd10)
         FROM (
-            SELECT DISTINCT
-                dx.diagtype,
+            SELECT
+                MIN(dx.diagtype) AS diagtype,
                 dx.icd10
             FROM ovstdiag dx
             WHERE dx.vn = v.vn
+            GROUP BY dx.icd10
         ) dx_item
     ) AS dx_list,
     'auto' AS source,
@@ -76,7 +80,7 @@ FROM ovst v
 JOIN patient p ON p.hn = v.hn
 LEFT JOIN opdscreen os ON os.vn = v.vn
 LEFT JOIN er_regist er ON er.vn = v.vn
-LEFT JOIN er_emergency_level el ON el.er_emergency_level_id = er.er_emergency_level_id
+LEFT JOIN er_emergency_level et ON et.er_emergency_level_id = er.er_emergency_level_id
 LEFT JOIN ovstost ost ON ost.ovstost = v.ovstost
 LEFT JOIN er_nursing_detail nd ON nd.vn = v.vn
 LEFT JOIN accident_alcohol_type aat ON aat.accident_alcohol_type_id = nd.accident_alcohol_type_id
